@@ -1,3 +1,18 @@
+#  Copyright (C) 2021 Aayush Soni <aayush.soni795@gmail.com>
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://gnu.org/licenses/gpl-3.0.txt>
+
+
 from math import log2, ceil
 
 class SequenceError(Exception):
@@ -29,8 +44,6 @@ def get_list(s,enco_type='def'):
 	l = [s[:i] for i in range(len(s)+1)]
 	l_len = len(l)
 	if enco_type == 'bin' :
-		# digs = 1
-		# while (1<<digs) < l_len : digs+=1
 		digs = bitlen(l_len)
 		enco = [format(i,'0'+str(digs)+'b') for i in range(l_len)]
 	elif enco_type == 'hex' :
@@ -66,34 +79,46 @@ def state_table(x):
 	for i in x:print (i[0],'::',i[2],':',i[1])
 
 	
-def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',output_wire = 'out'):
+def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',output_wire = 'out' , clock_edge = 'posedge clk', reset = 'rst'):
 	
-	
+	### check that inputs are of a valid format
 	if not enco_type in valid_enco :
 		print("Not a valid encoding format. Taking default")
 		enco_type = 'def'
 	if s.count('0')+s.count('1') < len(s) :
 		raise(SequenceError('Sequence can only contain 0 / 1'))
 	
+	### calculate  l (not needed) , encoding, and state_table (x)
 	l,enco,x = fsm(s,enco_type)
 	
+	
+	### n = number of bits needed for state register 
 	if enco_type is not 'onehot':
-		n = str(bitlen(len(enco))) # number of bits needed for state n = str(len(format(len(enco),'b'))  )
-	else: n= str(len(enco))#n = str(len(format(len(enco)-1,'b'))) 
+		n = str(bitlen(len(enco)))
+	else: n= str(len(enco)) 
 	
-	print ('reg['+n+':0] ', state ,' , ', next_state ,';')
 	
+	### b=  beginning character to number e.g. 4'b, 6'h, etc.
+	b = ''
+	if enco_type in ['bin' , 'onehot'] : b = n + "'b" 
+	elif enco_type == 'hex' : b = n + "'h" 
+	elif enco_type == 'abc' : pass
+	else : b = n+"'d" 
+	
+	## prerequisite calculations are done... begin printing :)
+	
+	##parameter
 	if enco_type not in ['bin', 'hex','onehot','def' ] : # identification requires parameterization
 		print('parameter' ,end='\t')
 		for i in range(len(enco)):
 			if (i == len(enco)-1):
 				print (enco[i] , '=',i,	end=';\n')
 			else: print (enco[i] , '=',i,	end=',  ')
-	b = ''
-	if enco_type in ['bin' , 'onehot'] : b = n + "'b" 
-	elif enco_type == 'hex' : b = n + "'h" 
-	elif enco_type == 'abc' : pass
-	else : b = n+"'d" 
+	
+	##register declaration
+	print ('reg['+n+':0] ', state ,' , ', next_state ,';')
+	
+	## next_state logic ( combinational)
 	print('always@*')
 	print('\tcase(state)')
 	for i in x:
@@ -102,6 +127,12 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 		print('\t\tdefault:\t',next_state,'<=',b+enco[0],';')
 	print('\tendcase')
 	
+	## sequential circuit
+	print('always@('+clock_edge+')')
+	print('\tif('+reset+') '+state+'<= '+enco[0] +';')
+	print('else '+state+' <= '+next_state+';')
+	
+	##output logic ( combinational)
 	if enco_type is not 'onehot' :
 		print ('assign ',output_wire,' = ',state,'==',enco[-1])
 	else :
