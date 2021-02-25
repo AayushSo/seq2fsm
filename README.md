@@ -1,9 +1,9 @@
 # seq2fsm
-Create an FSM that can detect a sequence in a bitstream
+## Create an FSM that can detect a sequence in a bitstream
 
-This is a python library that generates an FSM to detect an arbritary pattern on an input bitstream. 
+### This is a python library that generates an FSM to detect an arbritary pattern on an input bitstream. 
+
 The user can choose to display the states in decimal / binary/ hex/ one-hot encoded/ sequence-names.
-
 E.g. for detecting a sequence '1011001110'
 1. Decimal encoding :  '0', '1', '2' , .. , '10'
 2. Binary encoding : '0000' ,'0001' , ... , '1010'
