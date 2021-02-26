@@ -1,5 +1,5 @@
 # seq2fsm
-## Create an FSM that can detect a sequence in a bitstream
+## Create an FSM state table (and generate Verilog code!) that can detect a sequence in a bitstream
 
 ### This is a python library that generates an FSM to detect an arbritary pattern on an input bitstream. 
 
