@@ -30,7 +30,7 @@ ap.add_argument('-st','--state', required = False,default = 'state', help = "Sta
 ap.add_argument('-ns','--next-state', required = False,default = 'next', help = "Next state name. Default 'next'")
 ap.add_argument('-o','--output-signal', required = False,default = 'out', help = "Name of output signal. Default 'out'")
 ap.add_argument('-s','--sequence', required = True, help = "Sequence of bits to detect.")
-ap.add_argument('-ce','--clock-edge', required = False,default = 'posedge ', help = "clock edge. Default positive edge")
+ap.add_argument('-ce','--clock-edge', required = False,default = 'p', help = "clock edge. 'p' for positive edge, 'n' for negative edge. Default positive edge")
 ap.add_argument('-cn','--clock', required = False,default = 'clk', help = "Name of clock signal. Default 'clk'")
 ap.add_argument('-r','--reset', required = False,default = 'rst', help = "Name of reset signal")
 
