@@ -28,4 +28,5 @@ Also are function definitions for :
 3. verilog : Print Verilog-style code to create the FSM
    - input (sequence, encoding_type , input_wire (default 'in') , state_name (default 'state'), next_state ( default 'next') , output_wire (default 'out')
    - output _None_
-4. reverse_state_table : I'm going to use this to create efficient one-hot encoding
+4. reverse_state_table : Used to create efficient one-hot encoding. Returns table of "current_state : previous_state" entries
+5. onehot_gen : Generate next-state logic for one-hot encoding
