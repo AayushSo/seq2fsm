@@ -93,7 +93,7 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 	
 	
 	### n = number of bits needed for state register 
-	if enco_type is not 'onehot':
+	if enco_type != 'onehot':
 		n = str(bitlen(len(enco)))
 	else: n= str(len(enco)) 
 	
@@ -120,12 +120,17 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 	
 	## next_state logic ( combinational)
 	print('always@*')
-	print('\tcase(state)')
-	for i in x:
-		print('\t\t',b+i[0],':\t',next_state,'<=',input_wire,'?',b+i[2],':',b+i[1],';')
-	if len(enco)<2**int(n) :
-		print('\t\tdefault:\t',next_state,'<=',b+enco[0],';')
-	print('\tendcase')
+	if enco_type != 'onehot':
+		print('\tcase(state)')
+		for i in x:
+			print('\t\t',b+i[0],':\t',next_state,'<=',input_wire,'?',b+i[2],':',b+i[1],';')
+		if len(enco)<2**int(n) :
+			print('\t\tdefault:\t',next_state,'<=',b+enco[0],';')
+		print('\tendcase')
+	else:
+		X = reverse_state_table(enco,x)
+		print (onehot_gen(X,next_state=next_state,state=state,data=input_wire,init_tab=1 ) )
+	
 	
 	## sequential circuit
 	print('always@('+clock_edge+')')
@@ -137,12 +142,34 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 		print ('assign ',output_wire,' = ',state,'==',enco[-1])
 	else :
 		print ('assign ',output_wire,' = ',state ,'[', len(enco)-1,']')
-	
-def reverse_state_table(enco,x):
-	print ('Next state :: current_state_and_1 : current_state_and_0')
+
+##Reverse state-table, i.e. where 'x' gives current_state : next_state logic,
+## 'X' will give current_state : previous_state logic
+def reverse_state_table(enco,x,do_print = False):
+	if do_print: print ('Next state :: current_state_and_1 : current_state_and_0')
 	y = dict()
 	for i in enco : y[i] = [[],[]]
 	for i in x:
 		y[i[1]][0].append(i[0])
 		y[i[2]][1].append(i[0])
-	for i in y: print(i,'::',y[i][1] , ':' , y[i][0] )
+	if do_print:
+		for i in y: print(i,'::',y[i][1] , ':' , y[i][0] )
+	return y
+
+## Generate next-state logic for one-hot encoding
+def onehot_gen(X,next_state='next',state='state',data='in',init_tab =0):
+	s=''
+	for i in X:
+		s +=init_tab*'\t' +str(f'{next_state}[{index(i)}] =')
+		is_1 = len (X[i][1])>0
+		if is_1:
+			s += str(f' {data}&(')
+			for j in X[i][1]: s += str(f'{state}[{index(j)}]|')
+			s=s[:-1] + ');\n'
+		else:
+			
+			s += str(f' ~{data}&(')
+			for j in X[i][0]: s += str(f'{state}[{index(j)}]|')
+			s=s[:-1] + ');\n'
+	return s
+
