@@ -40,5 +40,5 @@ args = vars(ap.parse_args())
 
 F.verilog(args["sequence"],enco_type=args["encoding"],input_wire=args["input_signal"],state =args["state"],
 	next_state=args["next_state"],output_wire = args['output_signal'] ,clock_name = args['clock'],
-	clock_edge = args['clock_edge'], reset = args['reset']);
+	edge = args['clock_edge'], reset = args['reset']);
 	
