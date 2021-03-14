@@ -1,3 +1,21 @@
+#  Copyright (C) 2021 Aayush Soni <aayush.soni795@gmail.com>
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation.
+# 
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+# 
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://gnu.org/licenses/gpl-3.0.txt>
+
+
+## USE THIS PROGRAM TO DIRECTLY GENERATE VERILOG CODE FROM SEQUENCE.
+## To directly print to file add '>' along with file name in terminal :
+## python call_generator.py -s '101_enter_the_seq_101' > 'file_to_print.txt'
 import fsm_gen as F
 
 import argparse
