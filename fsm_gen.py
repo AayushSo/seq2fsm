@@ -79,8 +79,10 @@ def state_table(x):
 	for i in x:print (i[0],'::',i[2],':',i[1])
 
 	
-def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',output_wire = 'out' , clock_edge = 'posedge clk', reset = 'rst'):
+def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',output_wire = 'out' ,clock_name = 'clk', edge = 'p', reset = 'rst'):
 	
+	clock_edge = 'posedge ' if edge =='p' else 'nedgedge '
+	clock_edge += clock_name
 	### check that inputs are of a valid format
 	if not enco_type in valid_enco :
 		print("Not a valid encoding format. Taking default")
@@ -94,8 +96,8 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 	
 	### n = number of bits needed for state register 
 	if enco_type != 'onehot':
-		n = str(bitlen(len(enco)))
-	else: n= str(len(enco)) 
+		n = str(bitlen(len(enco))-1)
+	else: n= str(len(enco)-1) 
 	
 	
 	### b=  beginning character to number e.g. 4'b, 6'h, etc.
@@ -138,7 +140,7 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 	print('else '+state+' <= '+next_state+';')
 	
 	##output logic ( combinational)
-	if enco_type is not 'onehot' :
+	if enco_type != 'onehot' :
 		print ('assign ',output_wire,' = ',state,'==',enco[-1])
 	else :
 		print ('assign ',output_wire,' = ',state ,'[', len(enco)-1,']')
@@ -172,4 +174,7 @@ def onehot_gen(X,next_state='next',state='state',data='in',init_tab =0):
 			for j in X[i][0]: s += str(f'{state}[{index(j)}]|')
 			s=s[:-1] + ');\n'
 	return s
+
+def index(p): #return '2' for '00000100'
+	return len(p) -1 - p.index('1')
 
