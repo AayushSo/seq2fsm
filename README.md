@@ -16,6 +16,14 @@ I also added a small program to print out the necessary Verilog code for :
 3. Case states for next-state
 4. Assign output based on matching condition
 
+
+### EDIT: I added support for including dont-care's in the sequence! ( fsm_gen_v2.py)
+E.g. A sequence '1x1' will trigger output for both '111' and '101'
+A sequence '1x01x' will trigger output for '10010', '10011','11010' and '11011'
+
+### EDIT2: I added a python script that can directly be run to dump verilog code to console/ to a specified file 
+
+
 Also are function definitions for : 
 1.  seq_gen : Used to create state table, and envoded state names
     - input( sequence e.g. '101011' , encoding .e.g 'hex')
