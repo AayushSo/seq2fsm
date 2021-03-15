@@ -18,8 +18,8 @@ I also added a small program to print out the necessary Verilog code for :
 
 
 ### EDIT: I added support for including dont-care's in the sequence! ( fsm_gen_v2.py)
-E.g. A sequence '1x1' will trigger output for both '111' and '101'
-A sequence '1x01x' will trigger output for '10010', '10011','11010' and '11011'
+E.g. A sequence '1x1' will trigger output for both '111' and '101'.
+A sequence '1x01x' will trigger output for '10010', '10011','11010' and '11011'.
 
 ### EDIT2: I added a python script that can directly be run to dump verilog code to console/ to a specified file 
 
