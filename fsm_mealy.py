@@ -102,8 +102,8 @@ def mealy(s,enco_type='def'):
 		l.remove(i)
 	for i in fin_enco:
 		enco.remove(i)
-	x=[]#d=dict()
-	y=[]#d=dict()
+	x=[] # list of current-state -> next-states
+	y=[] # list of current-state -> output-value ( function of input for mealy)
 	for i in l:
 		v0 = i+'0'	#add '0' to current matching sequence-part
 		v1 = i+'1'	#add '1' ...
@@ -111,7 +111,6 @@ def mealy(s,enco_type='def'):
 		out_if_1 = (v1 in fin_l)*1
 		while not v0 in l: v0 = v0[1:] # keep removing oldest bits from sequence till a new hit is found
 		while not v1 in l: v1 = v1[1:]	# ditto, but for v1
-		#x.append( (	  enco[ l.index(i)] , (enco[l.index(v0)],out_if_0), (enco[l.index(v1)],out_if_1) )) # the 'new hit' is the next state to jump to for 0/1
 		x.append( (	  enco[ l.index(i)] , enco[l.index(v0)], enco[l.index(v1)] )) # the 'new hit' is the next state to jump to for 0/1
 		y.append( (	  enco[ l.index(i)] , out_if_0, out_if_1 )) # the 'new hit' is the next state to jump to for 0/1
 	return l,enco,x,y
@@ -136,9 +135,15 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 	if s.count('0')+s.count('1')+s.count('x') < len(s) :
 		raise(SequenceError('Sequence can only contain 0 / 1 / x(X) / ? '))
 	
-	### calculate  l , encoding, and state_table (x)
+	### calculate  l , encoding, state_table (x) and output_table (y)
 	l,enco,x,y = mealy(s,enco_type)
-	
+	g = [] ##check for each state if o/p is 1 for neither, first, second or both cases
+	for i in y:
+		if i[1]&i[2] : g.append('11')
+		elif i[1]:g.append('10')
+		elif i[2]:g.append('01')
+		else: g.append('00')		
+	if '11' in g: print('//WARNING : OUTPUT FUNCTION MIGHT NOT DEPEND ON INPUT VALUE.') 
 	
 	### n = number of bits needed for state register 
 	if enco_type != 'onehot':
@@ -192,12 +197,6 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 	
 	##output logic ( combinational)
 	#num_final_states = len(l) #count how many states are 'longest'.These are the final states, e.g. for 1x1 it is 101 and 111 i.ee 2 states
-	g = [] ##check for each state if o/p is 1 for neither, first, second or both cases
-	for i in y:
-		if i[1]&i[2] : g.append('11')
-		elif i[1]:g.append('10')
-		elif i[2]:g.append('01')
-		else: g.append('00')		
 	if enco_type != 'onehot' :
 		print ('assign ',output_wire,' = ',end = '')
 		if '11' in g:
@@ -230,24 +229,6 @@ def verilog(s,enco_type='def',input_wire='in',state ='state',next_state='next',o
 				if i =='01' : print(state,'[',index(y[j][0]),'] |',end='')
 			print('\b)',end='|')
 		print('\b;')
-		
-		# for i in y:  
-			# if 1 in i :
-				# in_0_out_1 = i[1]
-				# in_1_out_1 = i[2]
-				# if in_0_out_1 and in_1_out_1: print('(',state,'[',i[0],']) |',end='')
-				# else : print('~'*in_0_out_1,input_wire,'(',state,'==',i[0],') |',end='')
-		# print('\b;')
-	# num_final_states = [len(i) for i in l].count(len(l[-1])) #count how many states are 'longest'.These are the final states, e.g. for 1x1 it is 101 and 111 i.ee 2 states
-	# if enco_type != 'onehot' :
-		# print ('assign ',output_wire,' = ',end = '')
-		# for i in range(1,num_final_states+1) :  print('(',state,'==',enco[-i],') |',end='')
-		# print('\b;')
-	# else :
-		# if num_final_states ==1:
-			# print ('assign ',output_wire,' = ',state ,'[', len(enco)-1,']',';')
-		# else :
-			# print ('assign ',output_wire,' = |{',state ,'[', len(enco)-1,':',len(enco)-num_final_states,']}',';')
 		
 
 ##Reverse state-table, i.e. where 'x' gives current_state : next_state logic,
