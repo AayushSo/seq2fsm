@@ -22,9 +22,14 @@ E.g. A sequence '1x1' will trigger output for both '111' and '101'.
 A sequence '1x01x' will trigger output for '10010', '10011','11010' and '11011'.
 
 ### EDIT2: I added a python script that can directly be run to dump verilog code to console/ to a specified file 
+Syntax to dump directly to a file :
+python call_generator.py -s '101_enter_the_seq_101' > 'file_to_print.txt'
+<br>WARNING : IF A FILE ALREADY EXISTS IT MAY BE OVERWRITTEN
+
+Excluding the '> filename.extension' will print onto terminal directly 
 |Argument|Arguement Shorthand|Required|Format|Description|
 |---|---|---|---|---|
-|--sequence|-s|**Yes**|binary/decimal/hex value|Sequence to detect. Default binary representation |
+|--sequence|-s|**Yes**|Sequence of binary/hex/decimal values. <br> (For binary) Supports 'x' for don't care (to detect multiple sequences in single fsm) <br> (For hex/dec) Add multiple sequences by separating with a '\|'|Sequence to detect. Default binary representation |
 |--seq-hex|-sh|No|-|Sequence is a hex number representation. Does not support X!<br> **Default binary**|
 |--seq-dec|-sd|No|-|Sequence is a decimal number representation. Does not support X!<br> **Default binary**|
 |--bitlength|-b|No|-|Bit length of sequence. <br>Default is the default length of sequence|
