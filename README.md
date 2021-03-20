@@ -22,7 +22,21 @@ E.g. A sequence '1x1' will trigger output for both '111' and '101'.
 A sequence '1x01x' will trigger output for '10010', '10011','11010' and '11011'.
 
 ### EDIT2: I added a python script that can directly be run to dump verilog code to console/ to a specified file 
-
+|Argument|Arguement Shorthand|Required|Format|Description|
+|---|---|---|---|---|
+|--sequence|-s|**Yes**|binary/decimal/hex value|Sequence to detect. Default binary representation |
+|--seq-hex|-sh|No|-|Sequence is a hex number representation. Does not support X!<br> **Default binary**|
+|--seq-dec|-sd|No|-|Sequence is a decimal number representation. Does not support X!<br> **Default binary**|
+|--bitlength|-b|No|-|Bit length of sequence. <br>Default is the default length of sequence|
+|--encoding|-e|No|-|Bit length of sequence. <br>Default is length of sequence|
+|--moore|-m|No|-|Moore type FSM. <br>**Default Mealy**|
+|--input-signal|-i|No|string|Name of input signal. <br>**Default 'in'**|
+|--state|-st|No|string| State name. <br>**Default 'state'**|
+|--next-state|-ns|No|string|Next state name. <br>**Default 'next'**|
+|--output-signal|-o|No|string|Name of output signal. <br>**Default 'out'**|
+|--clock-edge|-ce|No|'p' / 'posedge' for positive edge <br> 'n' /'negedge' for negative edge|Clock edge. 'p' for positive edge, 'n' for negative edge. <br>**Default positive edge**|
+|--clock|-cn|No|string| Name of clock signal. <br>**Default 'clk'**|
+|--reset|-r|No|string|Name of reset signal. <br>**Default 'rst'**|
 
 Also are function definitions for : 
 1.  seq_gen : Used to create state table, and envoded state names
