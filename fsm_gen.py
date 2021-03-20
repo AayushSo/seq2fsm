@@ -1,3 +1,9 @@
+##################################
+#WARNING- DEFUNCT
+#This code is replaced by fsm_moore.py
+######################
+
+
 #  Copyright (C) 2021 Aayush Soni <aayush.soni795@gmail.com>
 # 
 #  This program is free software; you can redistribute it and/or modify
