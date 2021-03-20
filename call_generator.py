@@ -19,30 +19,109 @@
 
 import argparse
 
-#a = sys.argv # destination filename, sequence to find, encoding type, input_wire, state, output_wire, clock_edge,reset 
-
 ap = argparse.ArgumentParser()
-#ap.add_argument('-f','--filename', required = True, help = "File name to store code")
+#Sequence
+ap.add_argument('-s','--sequence', required = True, help = "Sequence of bits to detect.")
+#Sequence decoder
+ap.add_argument('-sh','--seq-hex', action = 'store_true', help = "Sequence is a hex number representation. Does not support X!	Default binary")
+ap.add_argument('-sd','--seq-dec', action = 'store_true', help = "Sequence is a decimal number representation. Does not support X! Default binary")
+ap.add_argument('-b','--bitlength', required = False, default = None, help = "Bit length of sequence. Default is length of sequence")
+
+#encoding format
 ap.add_argument('-e','--encoding', required = False,default = 'def', help = "Encoding for FSM. Default to decimal encoding")
+
+#FSM type
+ap.add_argument('-mo','--moore', action = 'store_true', help = "Moore type FSM. Default Mealy.")
+
+#Signal naming
 ap.add_argument('-i','--input-signal', required = False,default = 'in', help = "Name of input signal. Default to 'in'")
 ap.add_argument('-st','--state', required = False,default = 'state', help = "State name. Default 'state'")
 ap.add_argument('-ns','--next-state', required = False,default = 'next', help = "Next state name. Default 'next'")
 ap.add_argument('-o','--output-signal', required = False,default = 'out', help = "Name of output signal. Default 'out'")
-ap.add_argument('-s','--sequence', required = True, help = "Sequence of bits to detect.")
 ap.add_argument('-ce','--clock-edge', required = False,default = 'p', help = "clock edge. 'p' for positive edge, 'n' for negative edge. Default positive edge")
 ap.add_argument('-cn','--clock', required = False,default = 'clk', help = "Name of clock signal. Default 'clk'")
 ap.add_argument('-r','--reset', required = False,default = 'rst', help = "Name of reset signal")
-ap.add_argument('-x','--include-x', action = 'store_true', help = "Include x/X/? for don't care's")
-
 args = vars(ap.parse_args())
-#print(args)
 
-if args["include_x"] : 
-	import fsm_gen_v2 as F
-else : import fsm_gen as F
+if args["moore"] : 
+	try: import fsm_moore as F
+	except: import fsm_gen as F #OLD VERSION 
+else : import fsm_mealy as F
+
+s = args["sequence"]
+#print(s,'***')
+##sequence modifier
+if args["seq_hex"]:
+	num_seq = s.count('|') +1
+	if num_seq ==1 :
+		#h =str(len(s)*4) if not	 args["bitlength"] else args["bitlength"] 
+		max_len = int(s,16).bit_length()
+		if args["bitlength"]:
+			if max_len> args["bitlength"]:
+				print(f'//Can\'t fit sequence in {args["bitlength"]} bits. Generating sequence of length {max_len}')
+				h=str(max_len)
+			else:
+				h = args["bitlength"]
+		else: h=max_len
+		#print(h,s)
+		try:
+			s = format(int(s,16),'0'+h+'b')
+			print('//Decoded Sequence ',s)
+		except Exception as e:
+			print("Expected hexadecimal represented sequence")
+			exit()
+	else:
+		S = s.split('|')
+		max_len = max([int(i,16).bit_length() for i in S])
+		if not	args["bitlength"]: h = str(max_len)
+		else:
+			if max_len > int(args["bitlength"]):
+				print(f'//Can\'t fit sequence in {args["bitlength"]} bits. Generating sequence of length {max_len}')
+				h = str(max_len)
+			else: h = args["bitlength"]
+		s=format(int(S.pop(),16),'0'+h+'b')
+		for i in S:
+			s_temp = format(int(i,16),'0'+h+'b')
+			s = ''.join([s[i] if s[i]==s_temp[i] else 'x' for i in range(len(s))])
+		print('//Decoded Sequence ',s)
+
+elif args["seq_dec"]:
+	num_seq = s.count('|') +1
+	if num_seq ==1 :
+		#h ='' if not  args["bitlength"] else args["bitlength"] 
+		max_len = int(s).bit_length()
+		if args["bitlength"]:
+			if max_len> args["bitlength"]:
+				print(f'//Can\'t fit sequence in {args["bitlength"]} bits. Generating sequence of length {max_len}')
+				h=str(max_len)
+			else:
+				h = args["bitlength"]
+		else: h=max_len
+		
+		try:
+			s = format(int(s,10),'0'+h+'b')
+			print('//Decoded Sequence ',s)
+		except Exception as e:
+			print("Expected hexadecimal represented sequence")
+			exit()
+	else:
+		S = s.split('|')
+		max_len = max([int(i).bit_length() for i in S])
+		if not	args["bitlength"]: h = str(max_len)
+		else:
+			if max_len > int(args["bitlength"]): h = str(max_len)
+			else: h = args["bitlength"]
+		s=format(int(S.pop()),'0'+h+'b')
+		for i in S:
+			s_temp = format(int(i),'0'+h+'b')
+			s = ''.join([s[i] if s[i]==s_temp[i] else 'x' for i in range(len(s))])
+		print('//Decoded Sequence ',s)
+
+else:
+	print('//Decoded Sequence ',s)
 
 
-try :F.verilog(args["sequence"],enco_type=args["encoding"],input_wire=args["input_signal"],state =args["state"],
+try :F.verilog(s,enco_type=args["encoding"],input_wire=args["input_signal"],state =args["state"],
 	next_state=args["next_state"],output_wire = args['output_signal'] ,clock_name = args['clock'],
 	edge = args['clock_edge'], reset = args['reset']);
-except Exception : print("Got unexpected don't care. Include '-x' or '--include-x' in arguments to include don't care positions")
+except Exception as e: print("Error:",e)
